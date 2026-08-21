@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>گالری عکس : علیرضا مفتوحی | روایت‌های بی‌کلام</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            min-height: 100vh;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+        }
+
+        body {
+            overflow-y: auto;
+            padding-top: 70px;
+        }
+
+        body.fullscreen-mode {
+            overflow: hidden;
+        }
+
+        /* ===== هدر ثابت با چیدمان افقی ===== */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(12px);
+            padding: 12px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            height: 70px;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            gap: 15px;
+        }
+
+        .navbar.hidden {
+            transform: translateY(-100%);
+            opacity: 0;
+        }
+
+        /* لینک‌های ناوبری - سمت چپ */
+        .navbar .nav-links {
+            display: flex;
+            gap: 25px;
+            align-items: center;
+            order: 1;
+            flex-shrink: 0;
+        }
+
+        .navbar .nav-links a {
+            color: #aaa;
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.3s ease;
+            padding: 5px 10px;
+            border-radius: 20px;
+        }
+
+        .navbar .nav-links a:hover,
+        .navbar .nav-links a.active {
+            color: #f7971e;
+            background: rgba(247, 151, 30, 0.1);
+        }
+
+        /* ===== عنوان طلایی در هدر ===== */
+        .header-title {
+            font-size: 1.3rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #f7971e, #ffd200, #f7971e);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 3s linear infinite;
+            font-family: 'Arial Black', 'Impact', Arial, sans-serif;
+            letter-spacing: 1px;
+            order: 2;
+            flex: 1;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 0% center;
+            }
+            100% {
+                background-position: 200% center;
+            }
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding-left: 20px;
+            padding-right: 20px;
+            transition: filter 0.3s ease;
+        }
+
+        .main-container.blurred {
+            filter: blur(5px);
+            pointer-events: none;
+        }
+
+        #home {
+            padding-top: 10px;
+        }
+
+        /* ===== تب‌های دسته‌بندی ===== */
+        .category-tabs {
+            max-width: 1200px;
+            margin: 10px auto 15px auto;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding: 5px 0;
+        }
+
+        .category-tab {
+            padding: 8px 25px;
+            border: 2px solid #333;
+            border-radius: 30px;
+            background: transparent;
+            color: #aaa;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .category-tab:hover {
+            border-color: #666;
+            color: #fff;
+        }
+
+        .category-tab.active {
+            border-color: #f7971e;
+            color: #f7971e;
+            background: rgba(247, 151, 30, 0.1);
+            box-shadow: 0 0 20px rgba(247, 151, 30, 0.1);
+        }
+
+        .category-tab .count {
+            font-size: 0.75rem;
+            color: #666;
+            margin-right: 5px;
+        }
+
+        .category-tab.active .count {
+            color: #f7971e;
+        }
+
+        /* ===== نمایشگر عکس بزرگ ===== */
+        .photo-viewer {
+            position: relative;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #111;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            min-height: 400px;
+        }
+
+        .photo-viewer .main-image {
+            width: 100%;
+            height: auto;
+            max-height: 65vh;
+            object-fit: contain;
+            display: block;
+            background: #0a0a0a;
+            transition: opacity 0.3s ease;
+            cursor: pointer;
+        }
+
+        .photo-viewer .main-image:hover {
+            opacity: 0.9;
+        }
+
+        .click-hint {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 0.8rem;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 5px 15px;
+            border-radius: 20px;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+            white-space: nowrap;
+        }
+
+        .photo-viewer .photo-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 15px 25px;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .photo-viewer .photo-info .caption {
+            font-size: 1rem;
+            direction: ltr;
+            text-align: right;
+        }
+
+        .photo-viewer .photo-info .caption .category-badge {
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            margin-left: 10px;
+            font-weight: bold;
+        }
+
+        .category-badge.people {
+            background: #e74c3c;
+            color: #fff;
+        }
+        .category-badge.nature {
+            background: #27ae60;
+            color: #fff;
+        }
+        .category-badge.wildlife {
+            background: #f39c12;
+            color: #fff;
+        }
+
+        .photo-viewer .photo-info .counter {
+            font-size: 0.85rem;
+            color: #aaa;
+        }
+
+        /* ===== دکمه‌های ناوبری روی عکس ===== */
+        .nav-arrows {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 15px;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .nav-arrows button {
+            pointer-events: auto;
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .nav-arrows button:hover {
+            background: #f7971e;
+            border-color: #f7971e;
+            transform: scale(1.1);
+        }
+
+        /* ===== گالری تصاویر کوچک ===== */
+        .thumbnail-strip {
+            max-width: 1200px;
+            margin: 15px auto 20px auto;
+            padding: 10px 0;
+            overflow-x: auto;
+            white-space: nowrap;
+            scrollbar-width: thin;
+            scrollbar-color: #f7971e #1a1a1a;
+            position: relative;
+        }
+
+        .thumbnail-strip::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .thumbnail-strip::-webkit-scrollbar-track {
+            background: #1a1a1a;
+            border-radius: 10px;
+        }
+
+        .thumbnail-strip::-webkit-scrollbar-thumb {
+            background: #f7971e;
+            border-radius: 10px;
+        }
+
+        .thumbnail-wrapper {
+            display: inline-flex;
+            gap: 10px;
+            padding: 5px 0;
+        }
+
+        .thumbnail-item {
+            width: 120px;
+            height: 80px;
+            flex-shrink: 0;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .thumbnail-item:hover {
+            transform: scale(1.05);
+            border-color: rgba(247, 151, 30, 0.5);
+        }
+
+        .thumbnail-item.active {
+            border-color: #f7971e;
+            box-shadow: 0 0 20px rgba(247, 151, 30, 0.3);
+        }
+
+        .thumbnail-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .thumbnail-item .thumb-category {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            font-size: 0.55rem;
+            padding: 1px 6px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: #fff;
+        }
+
+        /* ===== حالت تمام‌صفحه ===== */
+        .fullscreen-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.98);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            cursor: pointer;
+        }
+
+        .fullscreen-overlay.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        .fullscreen-overlay .fullscreen-image {
+            max-width: 95%;
+            max-height: 92vh;
+            object-fit: contain;
+            border-radius: 4px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9);
+            user-select: none;
+            -webkit-user-drag: none;
+            transform: scale(0.95);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: default;
+        }
+
+        .fullscreen-overlay.show .fullscreen-image {
+            transform: scale(1);
+        }
+
+        .fullscreen-overlay .close-fullscreen {
+            position: fixed;
+            top: 25px;
+            left: 30px;
+            color: #fff;
+            font-size: 2.8rem;
+            font-weight: 300;
+            cursor: pointer;
+            z-index: 10000;
+            transition: all 0.3s ease;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            line-height: 1;
+        }
+
+        .fullscreen-overlay .close-fullscreen:hover {
+            color: #f7971e;
+            background: rgba(247, 151, 30, 0.15);
+            border-color: #f7971e;
+            transform: rotate(90deg);
+        }
+
+        .fullscreen-overlay .fullscreen-info {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.95rem;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px 25px;
+            border-radius: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            text-align: center;
+            max-width: 90%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            z-index: 10000;
+            direction: ltr;
+        }
+
+        .fullscreen-overlay .fullscreen-info .fs-category {
+            display: inline-block;
+            padding: 1px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            margin-left: 10px;
+            font-weight: bold;
+        }
+
+        .fullscreen-overlay .fs-nav {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 3.5rem;
+            cursor: pointer;
+            z-index: 10000;
+            padding: 20px 15px;
+            transition: all 0.3s ease;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            user-select: none;
+            line-height: 1;
+            border: none;
+        }
+
+        .fullscreen-overlay .fs-nav:hover {
+            color: #fff;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .fullscreen-overlay .fs-nav.fs-prev {
+            left: 15px;
+        }
+
+        .fullscreen-overlay .fs-nav.fs-next {
+            right: 15px;
+        }
+
+        .fullscreen-overlay .fs-click-area {
+            position: fixed;
+            top: 0;
+            height: 100%;
+            width: 30%;
+            z-index: 9998;
+            cursor: pointer;
+        }
+
+        .fullscreen-overlay .fs-click-area.fs-prev-area {
+            left: 0;
+        }
+
+        .fullscreen-overlay .fs-click-area.fs-next-area {
+            right: 0;
+        }
+
+        /* ===== بخش‌های دیگر ===== */
+        .section {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            border: 1px solid #222;
+        }
+
+        .section h2 {
+            color: #f7971e;
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        .section p {
+            color: #ccc;
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+
+        .contact-links {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .contact-links a {
+            color: #fff;
+            text-decoration: none;
+            padding: 12px 30px;
+            border: 1px solid #333;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .contact-links a:hover {
+            border-color: #f7971e;
+            background: #f7971e;
+            color: #0a0a0a;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #555;
+            font-size: 0.9rem;
+            border-top: 1px solid #222;
+            margin-top: 40px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .photo-viewer .main-image {
+            animation: fadeIn 0.3s ease;
+        }
+
+        .loading-text {
+            color: #666;
+            font-size: 1.2rem;
+            text-align: center;
+            padding: 50px;
+        }
+
+        /* ===== ریسپانسیو ===== */
+        @media (max-width: 992px) {
+            .header-title {
+                font-size: 1.1rem;
+            }
+            .navbar .nav-links {
+                gap: 15px;
+            }
+            .navbar .nav-links a {
+                font-size: 0.85rem;
+                padding: 4px 8px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding-top: 60px;
+            }
+
+            .navbar {
+                padding: 10px 15px;
+                height: auto;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .navbar .nav-links {
+                gap: 8px;
+                order: 1;
+                width: 100%;
+                justify-content: center;
+                padding-bottom: 5px;
+            }
+
+            .navbar .nav-links a {
+                font-size: 0.75rem;
+                padding: 3px 8px;
+            }
+
+            .header-title {
+                font-size: 1rem;
+                order: 2;
+                width: 100%;
+                text-align: center;
+                white-space: normal;
+                padding: 2px 0;
+            }
+
+            .photo-viewer .photo-info {
+                padding: 10px 15px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+
+            .photo-viewer .photo-info .caption {
+                font-size: 0.85rem;
+            }
+
+            .nav-arrows button {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+
+            .thumbnail-item {
+                width: 80px;
+                height: 55px;
+            }
+
+            .section {
+                padding: 20px;
+                margin: 20px 10px;
+            }
+
+            .section h2 {
+                font-size: 1.5rem;
+            }
+
+            .category-tab {
+                padding: 6px 16px;
+                font-size: 0.8rem;
+            }
+
+            .fullscreen-overlay .fs-nav {
+                font-size: 2.5rem;
+                padding: 12px 10px;
+            }
+
+            .fullscreen-overlay .fs-nav.fs-prev {
+                left: 5px;
+            }
+
+            .fullscreen-overlay .fs-nav.fs-next {
+                right: 5px;
+            }
+
+            .fullscreen-overlay .close-fullscreen {
+                top: 15px;
+                left: 15px;
+                font-size: 2.2rem;
+                width: 40px;
+                height: 40px;
+            }
+
+            .fullscreen-overlay .fullscreen-info {
+                font-size: 0.8rem;
+                padding: 8px 18px;
+                bottom: 15px;
+                white-space: normal;
+            }
+
+            .click-hint {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .thumbnail-item {
+                width: 60px;
+                height: 40px;
+            }
+
+            .nav-arrows button {
+                width: 32px;
+                height: 32px;
+                font-size: 0.9rem;
+            }
+
+            .category-tab {
+                padding: 5px 12px;
+                font-size: 0.7rem;
+            }
+
+            .category-tab .count {
+                display: none;
+            }
+
+            .photo-viewer {
+                min-height: 250px;
+            }
+
+            .fullscreen-overlay .fs-nav {
+                font-size: 2rem;
+                padding: 10px 8px;
+            }
+
+            .header-title {
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== هدر ثابت با چیدمان افقی ===== -->
+    <nav class="navbar" id="mainNavbar">
+        <!-- لینک‌های ناوبری - سمت چپ -->
+        <div class="nav-links">
+            <a href="#home" class="active">خانه</a>
+            <a href="#about">درباره</a>
+            <a href="#contact">تماس</a>
+        </div>
+
+        <!-- عنوان طلایی وسط هدر -->
+        <div class="header-title">گالری عکس علیرضا مفتوحی | روایت‌های بی‌کلام</div>
+    </nav>
+
+    <!-- ===== محتوای اصلی ===== -->
+    <div class="main-container" id="mainContainer">
+
+        <!-- ===== بخش خانه ===== -->
+        <section id="home" class="section" style="margin-top:0; border:none; background:transparent; padding:0;">
+
+            <!-- تب‌های دسته‌بندی -->
+            <div class="category-tabs" id="categoryTabs">
+                <button class="category-tab active" data-category="all">
+                    🎯 همه
+                    <span class="count" id="countAll">۰</span>
+                </button>
+                <button class="category-tab" data-category="people">
+                    👤 مردم
+                    <span class="count" id="countPeople">۰</span>
+                </button>
+                <button class="category-tab" data-category="nature">
+                    🌿 طبیعت
+                    <span class="count" id="countNature">۰</span>
+                </button>
+                <button class="category-tab" data-category="wildlife">
+                    🦁 حیات وحش
+                    <span class="count" id="countWildlife">۰</span>
+                </button>
+            </div>
+
+            <!-- نمایشگر عکس بزرگ -->
+            <div class="photo-viewer" id="photoViewer">
+                <img id="mainImage" class="main-image" src="" alt="عکس اصلی" />
+                <div class="click-hint" id="clickHint">🔍 برای مشاهده تمام‌صفحه کلیک کنید</div>
+                <div class="nav-arrows">
+                    <button id="prevBtnMain" aria-label="عکس قبلی">❮</button>
+                    <button id="nextBtnMain" aria-label="عکس بعدی">❯</button>
+                </div>
+                <div class="photo-info">
+                    <span class="caption" id="mainCaption">
+                        در حال بارگذاری...
+                        <span class="category-badge people" id="categoryBadge">مردم</span>
+                    </span>
+                    <span class="counter" id="mainCounter">۰ از ۰</span>
+                </div>
+            </div>
+
+            <!-- نوار تصاویر کوچک -->
+            <div class="thumbnail-strip" id="thumbnailStrip">
+                <div class="thumbnail-wrapper" id="thumbnailWrapper">
+                    <div class="loading-text">⏳ در حال بارگذاری عکس‌ها...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== درباره ===== -->
+        <section id="about" class="section">
+            <h2>👩‍🎨 درباره من</h2>
+            <p>
+                 "من علیرضا مفتوحی هستم، بیش از بیست سال هست که عکاسی می کنم " در زمینه عکاسی حیات وحش، پرتره و طبیعت.
+                هدف من ثبت لحظات ناب و خلق تصاویری است که داستانی برای گفتن داشته باشند.
+            </p>
+            <p style="font-size:1rem; color:#888; margin-top:15px;">
+                📍 .در چندین جشنواره ، نمایشگاه و مسابقه عکاسی شرکت کرده ام که بعدا مفصل توضیح می دهم
+            </p>
+        </section>
+
+        <!-- ===== تماس ===== -->
+        <section id="contact" class="section">
+            <h2>📬 تماس با من</h2>
+            <p>خوشحال می‌شوم از شما بشنوم!</p>
+            <div class="contact-links">
+                 <a href="mailto:amiza53@yahoo.com">📧 ارسال ایمیل</a>
+       		 <a href="https://instagram.com/Maftouhi1" target="_blank">📷 اینستاگرام</a>
+      		  <a href="https://t.me/aksbonab" target="_blank">📱 تلگرام</a>
+		 <a href="https://www.youtube.com/@bonabtv/videos" target="_blank">▶️ یوتیوب</a>
+            </div>
+		
+        </section>
+
+        <div class="footer">
+            © ۲۰۲۶ علیرضا مفتوحی | تمامی حقوق محفوظ است
+        </div>
+    </div>
+
+    <!-- ===== حالت تمام‌صفحه ===== -->
+    <div class="fullscreen-overlay" id="fullscreenOverlay">
+        <div class="close-fullscreen" id="closeFullscreen">✕</div>
+        <button class="fs-nav fs-prev" id="fsPrevBtn">❮</button>
+        <button class="fs-nav fs-next" id="fsNextBtn">❯</button>
+        <div class="fs-click-area fs-prev-area" id="fsPrevArea"></div>
+        <div class="fs-click-area fs-next-area" id="fsNextArea"></div>
+        <img class="fullscreen-image" id="fullscreenImage" src="" alt="نمایش تمام‌صفحه" />
+        <div class="fullscreen-info" id="fullscreenInfo">
+            <span id="fsCaption">عکس</span>
+            <span class="fs-category people" id="fsCategory">مردم</span>
+            <span id="fsCounter" style="margin-right:15px;color:rgba(255,255,255,0.4);">۱ از ۰</span>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // ===== لیست عکس‌ها - اینجا را ویرایش کنید =====
+        // ============================================================
+        const PHOTO_LIST = {
+            people: [
+                "photo-1.jpg",
+                "photo-2.jpg",
+                "photo-3.jpg",
+                "photo-4.jpg",
+                "photo-5.jpg",
+                "photo-6.jpg",
+                "photo-7.jpg",
+                "photo-8.jpg",
+                "photo-9.jpg",
+                "photo-10.jpg",
+                "photo-11.jpg",
+                "photo-12.jpg",
+                "photo-13.jpg",
+                "photo-14.jpg",
+                "photo-15.jpg",
+                "photo-16.jpg",
+                "photo-17.jpg",
+                "photo-18.jpg",
+                "photo-19.jpg"
+            ],
+            nature: [
+                "photo-40.jpg",
+                "photo-41.jpg",
+                "photo-42.jpg",
+                "photo-43.jpg",
+                "photo-44.jpg",
+                "photo-45.jpg",
+                "photo-46.jpg",
+                "photo-47.jpg",
+                "photo-48.jpg",
+                "photo-49.jpg",
+                "photo-50.jpg",
+                "photo-51.jpg",
+                "photo-52.jpg",
+                "photo-53.jpg",
+                "photo-54.jpg",
+                "photo-55.jpg",
+                "photo-56.jpg",
+                "photo-57.jpg",
+                "photo-58.jpg",
+                "photo-59.jpg"
+            ],
+            wildlife: [
+                "photo-20.jpg",
+                "photo-21.jpg",
+                "photo-22.jpg",
+                "photo-23.jpg",
+                "photo-24.jpg",
+                "photo-25.jpg",
+                "photo-26.jpg",
+                "photo-27.jpg",
+                "photo-28.jpg",
+                "photo-29.jpg",
+                "photo-30.jpg",
+                "photo-31.jpg",
+                "photo-32.jpg",
+                "photo-33.jpg",
+                "photo-34.jpg",
+                "photo-35.jpg",
+                "photo-36.jpg",
+                "photo-37.jpg",
+                "photo-38.jpg",
+                "photo-39.jpg",
+                "photo-60.jpg"
+            ]
+        };
+
+        // ============================================================
+        // تنظیمات - دسته‌بندی‌ها
+        // ============================================================
+        const CATEGORY_FOLDERS = {
+            people: {
+                name: 'مردم',
+                icon: '👤',
+                color: 'people',
+                folder: 'people'
+            },
+            nature: {
+                name: 'طبیعت',
+                icon: '🌿',
+                color: 'nature',
+                folder: 'nature'
+            },
+            wildlife: {
+                name: 'حیات وحش',
+                icon: '🦁',
+                color: 'wildlife',
+                folder: 'wildlife'
+            }
+        };
+
+        const FOLDER_NAMES = ['people', 'nature', 'wildlife'];
+
+        // ============================================================
+        // متغیرهای اصلی
+        // ============================================================
+        let allPhotos = [];
+        let filteredPhotos = [];
+        let currentIndex = 0;
+        let currentCategory = 'all';
+        let isFullscreenOpen = false;
+
+        // ============================================================
+        // تابع حذف پسوند از نام فایل
+        // ============================================================
+        function removeExtension(filename) {
+            const lastDot = filename.lastIndexOf('.');
+            if (lastDot > 0) {
+                return filename.substring(0, lastDot);
+            }
+            return filename;
+        }
+
+        // ============================================================
+        // بارگذاری عکس‌ها از لیست داخل کد
+        // ============================================================
+        function loadPhotosFromList() {
+            allPhotos = [];
+            let totalCount = 0;
+
+            for (const folderName of FOLDER_NAMES) {
+                const category = CATEGORY_FOLDERS[folderName];
+                if (!category) continue;
+
+                const files = PHOTO_LIST[folderName] || [];
+
+                if (files.length === 0) {
+                    console.log(`📭 ${category.name}: هیچ عکسی در لیست وجود ندارد`);
+                    continue;
+                }
+
+                for (const fileName of files) {
+                    const imagePath = `images/${folderName}/${fileName}`;
+                    const nameWithoutExt = removeExtension(fileName);
+                    const thumbnailPath = `thumbnails/${folderName}/thumb-${nameWithoutExt}.jpg`;
+                    const displayName = nameWithoutExt;
+
+                    allPhotos.push({
+                        id: `${folderName}-${fileName}`,
+                        src: imagePath,
+                        thumbnail: thumbnailPath,
+                        caption: displayName,
+                        category: folderName,
+                        categoryName: category.name,
+                        categoryIcon: category.icon,
+                        fileName: fileName
+                    });
+                }
+
+                console.log(`✅ ${category.name}: ${files.length} عکس بارگذاری شد`);
+                totalCount += files.length;
+            }
+
+            console.log(`📸 مجموع کل: ${totalCount} عکس بارگذاری شد`);
+            return allPhotos;
+        }
+
+        // ============================================================
+        // المان‌های DOM
+        // ============================================================
+        const mainImage = document.getElementById('mainImage');
+        const mainCaption = document.getElementById('mainCaption');
+        const mainCounter = document.getElementById('mainCounter');
+        const categoryBadge = document.getElementById('categoryBadge');
+        const thumbnailWrapper = document.getElementById('thumbnailWrapper');
+        const prevBtnMain = document.getElementById('prevBtnMain');
+        const nextBtnMain = document.getElementById('nextBtnMain');
+        const categoryTabs = document.querySelectorAll('.category-tab');
+        const mainContainer = document.getElementById('mainContainer');
+        const mainNavbar = document.getElementById('mainNavbar');
+        const clickHint = document.getElementById('clickHint');
+
+        const fullscreenOverlay = document.getElementById('fullscreenOverlay');
+        const fullscreenImage = document.getElementById('fullscreenImage');
+        const fsCaption = document.getElementById('fsCaption');
+        const fsCategory = document.getElementById('fsCategory');
+        const fsCounter = document.getElementById('fsCounter');
+        const closeFullscreen = document.getElementById('closeFullscreen');
+        const fsPrevBtn = document.getElementById('fsPrevBtn');
+        const fsNextBtn = document.getElementById('fsNextBtn');
+        const fsPrevArea = document.getElementById('fsPrevArea');
+        const fsNextArea = document.getElementById('fsNextArea');
+
+        // ============================================================
+        // توابع اصلی
+        // ============================================================
+        function getFilteredPhotos() {
+            if (currentCategory === 'all') {
+                return allPhotos;
+            }
+            return allPhotos.filter(p => p.category === currentCategory);
+        }
+
+        function updatePhoto(index) {
+            filteredPhotos = getFilteredPhotos();
+
+            if (filteredPhotos.length === 0) {
+                mainImage.src = '';
+                mainCaption.innerHTML = 'هیچ عکسی در این دسته وجود ندارد';
+                mainCounter.textContent = '۰ از ۰';
+                categoryBadge.textContent = '';
+                categoryBadge.style.display = 'none';
+                document.querySelectorAll('.thumbnail-item').forEach(item => item.remove());
+                return;
+            }
+
+            if (index < 0) index = filteredPhotos.length - 1;
+            if (index >= filteredPhotos.length) index = 0;
+            currentIndex = index;
+
+            const photo = filteredPhotos[currentIndex];
+
+            mainImage.src = photo.src;
+            mainImage.alt = photo.caption;
+            mainCaption.innerHTML = `
+                ${photo.caption}
+                <span class="category-badge ${CATEGORY_FOLDERS[photo.category].color}">${photo.categoryName}</span>
+            `;
+            mainCounter.textContent = `${currentIndex + 1} از ${filteredPhotos.length}`;
+            categoryBadge.style.display = 'inline-block';
+
+            const thumbnails = document.querySelectorAll('.thumbnail-item');
+            thumbnails.forEach((item, i) => {
+                item.classList.toggle('active', i === currentIndex);
+                if (i === currentIndex) {
+                    item.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                }
+            });
+
+            const url = new URL(window.location);
+            url.hash = `photo-${encodeURIComponent(photo.id)}`;
+            history.replaceState({ index: currentIndex, category: currentCategory }, '', url);
+        }
+
+        function goToPrev() {
+            updatePhoto(currentIndex - 1);
+        }
+
+        function goToNext() {
+            updatePhoto(currentIndex + 1);
+        }
+
+        function goToPhoto(index) {
+            updatePhoto(index);
+        }
+
+        function changeCategory(category) {
+            currentCategory = category;
+            categoryTabs.forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.category === category);
+            });
+            buildThumbnails();
+            filteredPhotos = getFilteredPhotos();
+            if (filteredPhotos.length > 0) {
+                updatePhoto(0);
+            } else {
+                mainImage.src = '';
+                mainCaption.innerHTML = 'هیچ عکسی در این دسته وجود ندارد';
+                mainCounter.textContent = '۰ از ۰';
+                categoryBadge.textContent = '';
+                categoryBadge.style.display = 'none';
+            }
+        }
+
+        // ============================================================
+        // ساخت تصاویر کوچک
+        // ============================================================
+        function buildThumbnails() {
+            thumbnailWrapper.innerHTML = '';
+            filteredPhotos = getFilteredPhotos();
+
+            if (filteredPhotos.length === 0) {
+                thumbnailWrapper.innerHTML = '<div class="loading-text">📭 هیچ عکسی در این دسته وجود ندارد</div>';
+                return;
+            }
+
+            filteredPhotos.forEach((photo, index) => {
+                const item = document.createElement('div');
+                item.className = 'thumbnail-item';
+                if (index === 0) item.classList.add('active');
+
+                const img = document.createElement('img');
+                img.src = photo.thumbnail;
+                img.alt = photo.caption;
+                img.loading = 'lazy';
+
+                img.onerror = function() {
+                    this.src = photo.src;
+                };
+
+                const label = document.createElement('span');
+                label.className = 'thumb-category';
+                label.textContent = photo.categoryName;
+
+                item.appendChild(img);
+                item.appendChild(label);
+                item.addEventListener('click', () => goToPhoto(index));
+
+                thumbnailWrapper.appendChild(item);
+            });
+        }
+
+        // ============================================================
+        // به‌روزرسانی شمارنده‌های دسته‌بندی
+        // ============================================================
+        function updateCategoryCounts() {
+            const counts = {
+                all: allPhotos.length,
+                people: allPhotos.filter(p => p.category === 'people').length,
+                nature: allPhotos.filter(p => p.category === 'nature').length,
+                wildlife: allPhotos.filter(p => p.category === 'wildlife').length
+            };
+
+            document.getElementById('countAll').textContent = counts.all;
+            document.getElementById('countPeople').textContent = counts.people;
+            document.getElementById('countNature').textContent = counts.nature;
+            document.getElementById('countWildlife').textContent = counts.wildlife;
+        }
+
+        // ============================================================
+        // توابع تمام‌صفحه
+        // ============================================================
+        function openFullscreen() {
+            if (filteredPhotos.length === 0) return;
+
+            const photo = filteredPhotos[currentIndex];
+            fullscreenImage.src = photo.src;
+            fsCaption.textContent = photo.caption;
+            fsCategory.textContent = photo.categoryName;
+            fsCategory.className = `fs-category ${CATEGORY_FOLDERS[photo.category].color}`;
+            fsCounter.textContent = `${currentIndex + 1} از ${filteredPhotos.length}`;
+
+            fullscreenOverlay.classList.add('show');
+            document.body.classList.add('fullscreen-mode');
+            mainContainer.classList.add('blurred');
+            mainNavbar.classList.add('hidden');
+            isFullscreenOpen = true;
+
+            if (clickHint) clickHint.style.opacity = '0';
+        }
+
+        function closeFullscreenFunc() {
+            fullscreenOverlay.classList.remove('show');
+            document.body.classList.remove('fullscreen-mode');
+            mainContainer.classList.remove('blurred');
+            mainNavbar.classList.remove('hidden');
+            isFullscreenOpen = false;
+
+            setTimeout(() => {
+                if (clickHint) clickHint.style.opacity = '1';
+            }, 500);
+        }
+
+        function fsGoToPrev() {
+            if (filteredPhotos.length === 0) return;
+            const newIndex = (currentIndex + 1) % filteredPhotos.length;
+            updatePhoto(newIndex);
+            const photo = filteredPhotos[currentIndex];
+            fullscreenImage.src = photo.src;
+            fsCaption.textContent = photo.caption;
+            fsCategory.textContent = photo.categoryName;
+            fsCategory.className = `fs-category ${CATEGORY_FOLDERS[photo.category].color}`;
+            fsCounter.textContent = `${currentIndex + 1} از ${filteredPhotos.length}`;
+        }
+
+        function fsGoToNext() {
+            if (filteredPhotos.length === 0) return;
+            const newIndex = (currentIndex - 1 + filteredPhotos.length) % filteredPhotos.length;
+            updatePhoto(newIndex);
+            const photo = filteredPhotos[currentIndex];
+            fullscreenImage.src = photo.src;
+            fsCaption.textContent = photo.caption;
+            fsCategory.textContent = photo.categoryName;
+            fsCategory.className = `fs-category ${CATEGORY_FOLDERS[photo.category].color}`;
+            fsCounter.textContent = `${currentIndex + 1} از ${filteredPhotos.length}`;
+        }
+
+        // ============================================================
+        // رویدادها
+        // ============================================================
+
+        mainImage.addEventListener('click', openFullscreen);
+        closeFullscreen.addEventListener('click', closeFullscreenFunc);
+
+        fullscreenOverlay.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeFullscreenFunc();
+            }
+        });
+
+        fsPrevBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            fsGoToPrev();
+        });
+
+        fsNextBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            fsGoToNext();
+        });
+
+        fsPrevArea.addEventListener('click', function(e) {
+            e.stopPropagation();
+            fsGoToPrev();
+        });
+
+        fsNextArea.addEventListener('click', function(e) {
+            e.stopPropagation();
+            fsGoToNext();
+        });
+
+        prevBtnMain.addEventListener('click', goToPrev);
+        nextBtnMain.addEventListener('click', goToNext);
+
+        categoryTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                changeCategory(tab.dataset.category);
+            });
+        });
+
+        // ============================================================
+        // مدیریت کیبورد
+        // ============================================================
+        document.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+            if (isFullscreenOpen) {
+                switch (e.key) {
+                    case 'Escape':
+                        e.preventDefault();
+                        closeFullscreenFunc();
+                        break;
+                    case 'ArrowLeft':
+                        e.preventDefault();
+                        fsGoToPrev();
+                        break;
+                    case 'ArrowRight':
+                        e.preventDefault();
+                        fsGoToNext();
+                        break;
+                }
+                return;
+            }
+
+            switch (e.key) {
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    goToPrev();
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    goToNext();
+                    break;
+            }
+        });
+
+        // ============================================================
+        // پشتیبانی از تاچ
+        // ============================================================
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            const diff = touchStartX - touchEndX;
+
+            if (Math.abs(diff) > 50) {
+                if (isFullscreenOpen) {
+                    if (diff > 0) {
+                        fsGoToPrev();
+                    } else {
+                        fsGoToNext();
+                    }
+                } else {
+                    if (diff > 0) {
+                        goToNext();
+                    } else {
+                        goToPrev();
+                    }
+                }
+            }
+        });
+
+        // ============================================================
+        // ناوبری بین بخش‌ها با اسکرول نرم
+        // ============================================================
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').substring(1);
+                const targetSection = document.getElementById(targetId);
+
+                if (targetSection) {
+                    document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+
+                    const offset = 70;
+                    const targetPosition = targetSection.getBoundingClientRect().top + window.pageYOffset - offset;
+                    window.scrollTo({ top: targetPosition, behavior: 'smooth' });
+                }
+            });
+        });
+
+        window.addEventListener('scroll', () => {
+            const sections = ['home', 'about', 'contact'];
+            const scrollPosition = window.scrollY + 80;
+
+            sections.forEach(id => {
+                const section = document.getElementById(id);
+                if (section) {
+                    const top = section.offsetTop;
+                    const height = section.offsetHeight;
+
+                    if (scrollPosition >= top && scrollPosition < top + height) {
+                        document.querySelectorAll('.nav-links a').forEach(link => {
+                            link.classList.toggle('active', link.getAttribute('href') === `#${id}`);
+                        });
+                    }
+                }
+            });
+        });
+
+        // ============================================================
+        // بارگذاری اولیه
+        // ============================================================
+        function init() {
+            loadPhotosFromList();
+
+            if (allPhotos.length > 0) {
+                updateCategoryCounts();
+                buildThumbnails();
+
+                const hash = window.location.hash;
+                let startIndex = 0;
+
+                if (hash.startsWith('#photo-')) {
+                    const photoId = hash.replace('#photo-', '');
+                    const photo = allPhotos.find(p => p.id === decodeURIComponent(photoId));
+                    if (photo) {
+                        if (photo.category !== currentCategory) {
+                            currentCategory = photo.category;
+                            categoryTabs.forEach(tab => {
+                                tab.classList.toggle('active', tab.dataset.category === photo.category);
+                            });
+                            buildThumbnails();
+                        }
+                        const filtered = getFilteredPhotos();
+                        const index = filtered.findIndex(p => p.id === photo.id);
+                        if (index !== -1) {
+                            startIndex = index;
+                        }
+                    }
+                }
+
+                updatePhoto(startIndex);
+
+                function preloadAdjacent() {
+                    filteredPhotos = getFilteredPhotos();
+                    if (filteredPhotos.length === 0) return;
+
+                    const prevIndex = (currentIndex - 1 + filteredPhotos.length) % filteredPhotos.length;
+                    const nextIndex = (currentIndex + 1) % filteredPhotos.length;
+
+                    [prevIndex, nextIndex].forEach(index => {
+                        const img = new Image();
+                        img.src = filteredPhotos[index].src;
+                    });
+                }
+
+                setTimeout(preloadAdjacent, 500);
+
+                const originalUpdate = updatePhoto;
+                updatePhoto = function(index) {
+                    originalUpdate(index);
+                    setTimeout(preloadAdjacent, 300);
+                };
+
+                setTimeout(() => {
+                    if (clickHint) {
+                        clickHint.style.transition = 'opacity 1s ease';
+                        clickHint.style.opacity = '0';
+                        setTimeout(() => {
+                            clickHint.style.display = 'none';
+                        }, 1000);
+                    }
+                }, 5000);
+
+                console.log('🎉 گالری عکس با موفقیت بارگذاری شد!');
+                console.log(`👤 مردم: ${allPhotos.filter(p => p.category === 'people').length} عکس`);
+                console.log(`🌿 طبیعت: ${allPhotos.filter(p => p.category === 'nature').length} عکس`);
+                console.log(`🦁 حیات وحش: ${allPhotos.filter(p => p.category === 'wildlife').length} عکس`);
+
+            } else {
+                console.error('❌ هیچ عکسی بارگذاری نشد!');
+                mainImage.src = '';
+                mainCaption.innerHTML = 'هیچ عکسی یافت نشد';
+                mainCounter.textContent = '۰ از ۰';
+                thumbnailWrapper.innerHTML = '<div class="loading-text">📭 هیچ عکسی در لیست وجود ندارد</div>';
+            }
+        }
+
+        init();
+    </script>
+
+</body>
+</html>
